@@ -73,14 +73,21 @@ if(require.main == module) {
         .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
         .option('-u, --url <url>', 'URL to check')
 	.parse(process.argv);
-    var checkJson;
-    if (program.file) {checkJson = checkHtmlFile(program.file, program.checks, false)}
-    if (program.url) {rest.get(program.url).on('complete', function(data) {setCheckJson(data);});}
+    if (program.file && !program.url) {
+	console.log("Checking local file...");
+	var checkJson = checkHtmlFile(program.file, program.checks, false)
+        var outJson = JSON.stringify(checkJson, null, 4);
+        console.log(outJson);
+    }
+    if (program.url) {
+	rest.get(program.url).on('complete', function(data) {setCheckJson(data);});
+    }
     var setCheckJson = function(data) {
-	checkJson = checkHtmlFile(data, program.checks, true);
+	console.log("Checking remote url...");
+	var checkJson = checkHtmlFile(data, program.checks, true);
+        var outJson = JSON.stringify(checkJson, null, 4);
+	console.log(outJson);
     };
-    var outJson = JSON.stringify(checkJson, null, 4);
-    console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
